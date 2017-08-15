@@ -1,12 +1,21 @@
-from peewee import *
+from peewee import (
+    SqliteDatabase,
+    Model,
+    CharField,
+    TextField,
+    DateField,
+)
 
-db = SqliteDatabase('postboard.db')
+sqlite_db = SqliteDatabase('postboard.db')
 
-class Comment(Model):
+
+class BaseModel(Model):
+    class Meta:
+        database = sqlite_db
+
+
+class Comment(BaseModel):
     key = CharField()
     name = CharField()
-    comment = TextField()
+    text = TextField()
     created_at = DateField()
-
-    class Meta:
-        database = db

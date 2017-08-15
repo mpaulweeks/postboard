@@ -1,8 +1,8 @@
-from model import (
-  db,
-  Comment,
+from .model import (
+    sqlite_db,
+    Comment,
 )
 
 if __name__ == "__main__":
-  db.connect()
-  db.create_tables([Comment])
+    sqlite_db.connect()
+    sqlite_db.create_tables([Comment])
