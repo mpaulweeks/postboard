@@ -1,1 +1,1 @@
-nohup ./bash/server_health.sh > /dev/null &
+nohup ./bash/server_postboard.sh > /dev/null &
