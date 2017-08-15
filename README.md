@@ -6,4 +6,5 @@ Simple comment service for demos
 
 ## todo
 - Open up CORS to github domain
+- Healthcheck returns total number of rows, maybe db size?
 - Pre-sort GET result to be newest first
