@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 
 from flask import (
@@ -12,12 +13,12 @@ from .model import (
 )
 
 
-app = Flask(__name__, static_url_path='docs')
+app = Flask(__name__)
 
 
 @app.before_request
 def before_request():
-    sqlite_db.connect()
+    sqlite_db.get_conn()
 
 
 @app.after_request
@@ -43,7 +44,7 @@ def get_by_key(key):
         .select()
         .where(Comment.key == key)
     )
-    return comments
+    return json.dumps([c.to_dict() for c in comments])
 
 
 @app.route("/comments", methods=['POST'])
@@ -54,7 +55,7 @@ def create():
         text=request.form['text'],
         created_at=datetime.datetime.now()
     )
-    return comment
+    return json.dumps(comment.to_dict())
 
 
 if __name__ == "__main__":
