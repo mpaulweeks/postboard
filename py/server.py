@@ -37,6 +37,16 @@ def health():
     return "ok"
 
 
+@app.route("/keys")
+def get_keys():
+    comments = (
+        Comment
+        .select(Comment.key)
+        .distinct()
+    )
+    return json.dumps([c.key for c in comments])
+
+
 @app.route("/comments/<key>")
 def get_by_key(key):
     comments = (
