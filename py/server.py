@@ -4,6 +4,7 @@ import os
 
 from flask import (
     Flask,
+    redirect,
     request,
 )
 
@@ -65,7 +66,9 @@ def create():
         text=request.form['text'],
         created_at=datetime.datetime.now()
     )
-    return json.dumps(comment.to_dict())
+    if request.form.get('no_redirect'):
+        return json.dumps(comment.to_dict())
+    return redirect(request.form.get('next') or request.referrer)
 
 
 if __name__ == "__main__":
