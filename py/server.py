@@ -54,6 +54,7 @@ def get_by_key(key):
         Comment
         .select()
         .where(Comment.key == key)
+        .order_by(Comment.created_at.desc())
     )
     return json.dumps([c.to_dict() for c in comments])
 
