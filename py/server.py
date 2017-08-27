@@ -4,6 +4,7 @@ import os
 
 from flask import (
     Flask,
+    abort,
     redirect,
     request,
 )
@@ -11,6 +12,7 @@ from flask import (
 from .model import (
     sqlite_db,
     Comment,
+    Payload,
 )
 
 
@@ -65,10 +67,32 @@ def create():
         key=request.form['key'],
         name=request.form['name'],
         text=request.form['text'],
-        created_at=datetime.datetime.now()
     )
     if request.form.get('no_redirect'):
         return json.dumps(comment.to_dict())
+    return redirect(request.form.get('next') or request.referrer)
+
+
+@app.route("/payload/<key>")
+def get_payload(key):
+    try:
+        payload = Payload.get(Payload.key == key)
+    except Exception:
+        return abort(404)
+    return payload.blob
+
+
+@app.route("/payload", methods=['POST'])
+def post_payload():
+    data = request.json
+    payload, _ = Payload.get_or_create(
+        key=data['key'],
+    )
+    payload.blob = data['blob']
+    payload.created_at = datetime.datetime.now()
+    payload.save()
+    if data.get('no_redirect'):
+        return json.dumps(payload.to_dict())
     return redirect(request.form.get('next') or request.referrer)
 
 

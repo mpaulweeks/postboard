@@ -1,3 +1,4 @@
+import datetime
 import os
 
 from peewee import (
@@ -20,12 +21,25 @@ class Comment(BaseModel):
     key = CharField()
     name = CharField()
     text = TextField()
-    created_at = DateTimeField()
+    created_at = DateTimeField(default=datetime.datetime.now)
 
     def to_dict(self):
         return {
             'key': self.key,
             'name': self.name,
             'text': self.text,
+            'created_at': self.created_at.isoformat(),
+        }
+
+
+class Payload(BaseModel):
+    key = CharField()
+    blob = TextField(null=True)
+    created_at = DateTimeField(default=datetime.datetime.now)
+
+    def to_dict(self):
+        return {
+            'key': self.key,
+            'blob': self.blob,
             'created_at': self.created_at.isoformat(),
         }
