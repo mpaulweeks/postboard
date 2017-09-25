@@ -6,14 +6,17 @@ Simple comment service for demos
 
 ## Install
 ```
-.bash/setup_venv.sh
-.bash/create_db.sh
+.install/setup_venv.sh
+.install/create_db.sh
+
 .bash/bg_postboard.sh
 
 ...
 
 .bash/kill_server.sh
 ```
+
+See `install/nginx.conf`
 
 ## todo
 - Open up CORS to github domain
