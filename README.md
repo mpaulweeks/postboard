@@ -18,6 +18,14 @@ Simple comment service for demos
 
 See `install/nginx.conf`
 
+## Tooling
+
+To quickly dump tables and see contents:
+```
+echo 'select * from payload;' | sqlite3 postboard.db
+echo 'select * from comment;' | sqlite3 postboard.db
+```
+
 ## todo
 - Open up CORS to github domain
 - Healthcheck returns total number of rows, maybe db size?
