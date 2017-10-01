@@ -70,7 +70,12 @@ def create_comment_by_key():
     )
     if request.form.get('no_redirect'):
         return json.dumps(comment.to_dict())
-    return redirect(request.form.get('next') or request.referrer)
+    destination = (
+        request.form.get('next') or
+        request.referrer or
+        ''
+    )
+    return redirect(destination)
 
 
 @app.route("/payload/<key>")
