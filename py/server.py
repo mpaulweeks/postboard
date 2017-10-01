@@ -41,7 +41,7 @@ def health():
 
 
 @app.route("/keys")
-def get_keys():
+def get_comment_keys():
     comments = (
         Comment
         .select(Comment.key)
@@ -51,7 +51,7 @@ def get_keys():
 
 
 @app.route("/comments/<key>")
-def get_by_key(key):
+def get_comment_by_key(key):
     comments = (
         Comment
         .select()
@@ -62,7 +62,7 @@ def get_by_key(key):
 
 
 @app.route("/comments", methods=['POST'])
-def create():
+def create_comment_by_key():
     comment = Comment.create(
         key=request.form['key'],
         name=request.form['name'],
@@ -74,7 +74,7 @@ def create():
 
 
 @app.route("/payload/<key>")
-def get_payload(key):
+def get_payload_by_key(key):
     try:
         payload = Payload.get(Payload.key == key)
     except Exception:
