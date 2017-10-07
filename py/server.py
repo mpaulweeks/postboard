@@ -81,7 +81,7 @@ def create_comment_by_key():
     return decide_redirect(request, json.dumps(comment.to_dict()))
 
 
-@app.route("/comments/<key>/<id>", methods=['DELETE'])
+@app.route("/delete/comment/<key>/<id>")  # GET for easy teaching
 def delete_comment(key, id):
     comment = Comment.get(Comment.id == id)
     if comment.key == key:
