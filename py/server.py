@@ -50,41 +50,43 @@ def health():
     return "ok"
 
 
-@app.route("/keys")
-def get_comment_keys():
+@app.route("/<domain>/keys")
+def get_comment_keys(domain):
     comments = (
         Comment
         .select(Comment.key)
+        .where(Comment.domain == domain)
         .distinct()
     )
     return json.dumps([c.key for c in comments])
 
 
-@app.route("/comments/<key>")
-def get_comment_by_key(key):
+@app.route("/comments/<domain>/<key>")
+def get_comment_by_key(domain, key):
     comments = (
         Comment
         .select()
-        .where(Comment.key == key)
+        .where(Comment.domain == domain and Comment.key == key)
         .order_by(Comment.created_at.desc())
     )
     return json.dumps([c.to_dict() for c in comments])
 
 
-@app.route("/comments", methods=['POST'])
-def create_comment_by_key():
+@app.route("/comments/<domain>/<key>", methods=['POST'])
+def create_comment_by_key(domain, key):
     comment = Comment.create(
-        key=request.form['key'],
+        domain=domain,
+        key=key,
         name=request.form['name'],
         text=request.form['text'],
     )
     return decide_redirect(request, json.dumps(comment.to_dict()))
 
 
-@app.route("/delete/comment/<key>/<id>")  # GET for easy teaching
-def delete_comment(key, id):
+@app.route("/delete/comment/<domain>/<key>/<id>")  # GET for easy teaching
+def delete_comment(domain, key, id):
     comment = Comment.get(Comment.id == id)
-    if comment.key == key:
+    if comment.domain == domain and comment.key == key:
         comment.delete_instance()
     return decide_redirect(request, json.dumps(comment.to_dict()))
 
