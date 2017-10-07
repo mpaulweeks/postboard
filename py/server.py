@@ -19,6 +19,16 @@ from .model import (
 app = Flask(__name__)
 
 
+def decide_redirect(req, message):
+    if req.form.get('no_redirect'):
+        return message
+    destination = req.form.get('next') or req.referrer
+    if destination:
+        return redirect(destination)
+    else:
+        return app.send_static_file('back.html')
+
+
 @app.before_request
 def before_request():
     sqlite_db.get_conn()
@@ -68,13 +78,15 @@ def create_comment_by_key():
         name=request.form['name'],
         text=request.form['text'],
     )
-    if request.form.get('no_redirect'):
-        return json.dumps(comment.to_dict())
-    destination = request.form.get('next') or request.referrer
-    if destination:
-        return redirect(destination)
-    else:
-        return app.send_static_file('back.html')
+    return decide_redirect(request, json.dumps(comment.to_dict()))
+
+
+@app.route("/comments/<key>/<id>", methods=['DELETE'])
+def delete_comment(key, id):
+    comment = Comment.get(Comment.id == id)
+    if comment.key == key:
+        comment.delete_instance()
+    return decide_redirect(request, json.dumps(comment.to_dict()))
 
 
 @app.route("/payload/<key>")

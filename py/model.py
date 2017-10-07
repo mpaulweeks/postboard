@@ -4,6 +4,7 @@ import os
 from peewee import (
     SqliteDatabase,
     Model,
+    PrimaryKeyField,
     CharField,
     TextField,
     DateTimeField,
@@ -18,6 +19,7 @@ class BaseModel(Model):
 
 
 class Comment(BaseModel):
+    id = PrimaryKeyField()
     key = CharField()
     name = CharField()
     text = TextField()
@@ -25,6 +27,7 @@ class Comment(BaseModel):
 
     def to_dict(self):
         return {
+            'id': self.id,
             'key': self.key,
             'name': self.name,
             'text': self.text,
