@@ -4,6 +4,11 @@ Simple comment service for demos
 - [Flask](http://flask.pocoo.org/)
 - [Peewee](http://docs.peewee-orm.com/en/latest/)
 
+## Web UI
+
+- [Comments](http://postboard.mpaulweeks.com/comments)
+- [Payloads](http://postboard.mpaulweeks.com/payload)
+
 ## Install
 ```
 .install/setup_venv.sh
