@@ -113,16 +113,13 @@ def get_payload_by_key(key):
 
 @app.route('/payload', methods=['POST'])
 def post_payload():
-    data = request.json
     payload, _ = Payload.get_or_create(
-        key=data['key'],
+        key=request.form['key'],
     )
-    payload.blob = data['blob']
+    payload.blob = request.form['blob']
     payload.created_at = datetime.datetime.now()
     payload.save()
-    if data.get('no_redirect'):
-        return json.dumps(payload.to_dict())
-    return redirect(request.form.get('next') or request.referrer)
+    return decide_redirect(request, json.dumps(payload.to_dict()))
 
 
 if __name__ == '__main__':
