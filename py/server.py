@@ -42,15 +42,26 @@ def after_request(response):
 
 @app.route('/')
 def root():
-    return app.send_static_file('index.html')
+    return redirect('/health')
 
 
-@app.route("/health")
+@app.route('/health')
 def health():
-    return "ok"
+    return 'ok'
 
 
-@app.route("/<domain>/keys")
+@app.route('/comments')
+def input_comments():
+    return app.send_static_file('comments.html')
+
+
+@app.route('/payload')
+def input_payload():
+    return app.send_static_file('payload.html')
+
+
+
+@app.route('/<domain>/keys')
 def get_comment_keys(domain):
     comments = (
         Comment
@@ -61,7 +72,7 @@ def get_comment_keys(domain):
     return json.dumps([c.key for c in comments])
 
 
-@app.route("/comments/<domain>/<key>")
+@app.route('/comments/<domain>/<key>')
 def get_comment_by_key(domain, key):
     comments = (
         Comment
@@ -72,7 +83,7 @@ def get_comment_by_key(domain, key):
     return json.dumps([c.to_dict() for c in comments])
 
 
-@app.route("/comments/<domain>/<key>", methods=['POST'])
+@app.route('/comments/<domain>/<key>', methods=['POST'])
 def create_comment_by_key(domain, key):
     comment = Comment.create(
         domain=domain,
@@ -83,7 +94,7 @@ def create_comment_by_key(domain, key):
     return decide_redirect(request, json.dumps(comment.to_dict()))
 
 
-@app.route("/delete/comment/<domain>/<key>/<id>")  # GET for easy teaching
+@app.route('/delete/comment/<domain>/<key>/<id>')  # GET for easy teaching
 def delete_comment(domain, key, id):
     comment = Comment.get(Comment.id == id)
     if comment.domain == domain and comment.key == key:
@@ -91,7 +102,7 @@ def delete_comment(domain, key, id):
     return decide_redirect(request, json.dumps(comment.to_dict()))
 
 
-@app.route("/payload/<key>")
+@app.route('/payload/<key>')
 def get_payload_by_key(key):
     try:
         payload = Payload.get(Payload.key == key)
@@ -100,7 +111,7 @@ def get_payload_by_key(key):
     return payload.blob
 
 
-@app.route("/payload", methods=['POST'])
+@app.route('/payload', methods=['POST'])
 def post_payload():
     data = request.json
     payload, _ = Payload.get_or_create(
@@ -114,7 +125,7 @@ def post_payload():
     return redirect(request.form.get('next') or request.referrer)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     with open('server.pid', 'wt') as f:
         f.write(str(os.getpid()))
     app.run(host='0.0.0.0', port=os.environ['POSTBOARD_PORT'])
