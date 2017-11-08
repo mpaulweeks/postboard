@@ -28,5 +28,4 @@ echo 'select * from comment;' | sqlite3 postboard.db
 
 ## todo
 - Open up CORS to github domain
-- Healthcheck returns total number of rows, maybe db size?
 - Pre-sort GET result to be newest first

@@ -47,7 +47,12 @@ def root():
 
 @app.route('/health')
 def health():
-    return 'ok'
+    data = {
+        "comment_keys": Comment.select(Comment.key).distinct().count(),
+        "comments": Comment.select().count(),
+        "payloads": Payload.select().count(),
+    }
+    return json.dumps(data)
 
 
 @app.route('/comments')
@@ -107,7 +112,7 @@ def get_payload_by_key(key):
     try:
         payload = Payload.get(Payload.key == key)
     except Exception:
-        return abort(404)
+        return ''
     return payload.blob
 
 
