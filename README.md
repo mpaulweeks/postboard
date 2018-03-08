@@ -6,8 +6,8 @@ Simple comment service for demos
 
 ## Web UI
 
-- [Comments](http://postboard.mpaulweeks.com/comments)
-- [Payloads](http://postboard.mpaulweeks.com/payload)
+- [Comments](https://postboard.mpaulweeks.com/comments)
+- [Payloads](https://postboard.mpaulweeks.com/payload)
 
 ## Install
 ```
