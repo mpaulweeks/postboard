@@ -1,0 +1,13 @@
+/* https://stackoverflow.com/a/7220510 */
+/* http://jsfiddle.net/KJQ9K/554/ */
+pre {
+  display: inline-block;
+  outline: 1px solid #ccc;
+  padding: 10px;
+  margin: 5px;
+}
+.string { color: green; }
+.number { color: darkorange; }
+.boolean { color: blue; }
+.null { color: magenta; }
+.key { color: red; }

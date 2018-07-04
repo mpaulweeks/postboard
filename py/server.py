@@ -4,7 +4,6 @@ import os
 
 from flask import (
     Flask,
-    abort,
     redirect,
     request,
 )
@@ -64,6 +63,20 @@ def input_comments():
 def input_payload():
     return app.send_static_file('payload.html')
 
+
+@app.route('/echo/test')
+def input_echo():
+    return app.send_static_file('echo_test.html')
+
+
+@app.route('/static/echo.js')
+def static_echo_js():
+    return app.send_static_file('echo.js')
+
+
+@app.route('/static/echo.css')
+def static_echo_css():
+    return app.send_static_file('echo.css')
 
 
 @app.route('/<domain>/keys')
@@ -125,6 +138,41 @@ def post_payload():
     payload.created_at = datetime.datetime.now()
     payload.save()
     return decide_redirect(request, json.dumps(payload.to_dict()))
+
+
+echo_html = """
+<html>
+<head>
+    <title>Postboard Echo</title>
+
+    <script id="echo" type="application/json">%s</script>
+
+    <link rel="stylesheet" href="static/echo.css?v=%s">
+    <script defer src="static/echo.js?v=%s"></script>
+</head>
+<body>
+</body>
+</html>
+"""
+
+
+def get_cache_bust():
+    time_diff = datetime.datetime.now() - datetime.datetime(1, 1, 1)
+    return int(time_diff.total_seconds())
+
+
+@app.route('/echo', methods=['POST'])
+def post_echo():
+    data = {
+        key: value[0] if len(value) == 1 else value
+        for key, value in request.form.iterlists()
+    }
+    cache_bust = get_cache_bust()
+    return echo_html % (
+        json.dumps(data),
+        cache_bust,
+        cache_bust,
+    )
 
 
 if __name__ == '__main__':
