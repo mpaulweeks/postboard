@@ -1,7 +1,7 @@
 // https://stackoverflow.com/a/7220510
 // http://jsfiddle.net/KJQ9K/554/
 function output(inp) {
-  document.body.appendChild(document.createElement('pre')).innerHTML = inp;
+  document.getElementById('output').innerHTML = inp;
 }
 function syntaxHighlight(json) {
   json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -25,7 +25,12 @@ function syntaxHighlight(json) {
 document.body.innerHTML = `
   <h1>Form Echo</h1>
   <p>This is what your form submitted:</p>
+
+  <pre id="output"></pre>
+
+  <p><button id="back">Go Back</button></p>
 `;
+document.getElementById('back').addEventListener('click', () => window.history.back());
 
 const formData = JSON.parse(document.getElementById('echo').innerHTML);
 console.log(formData);
