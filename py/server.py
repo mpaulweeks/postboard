@@ -11,12 +11,17 @@ from flask import (
 from .model import (
     sqlite_db,
     Comment,
+    Note,
     Payload,
 )
 
 
 app = Flask(__name__)
 
+
+###########################
+#   HELPERS
+###########################
 
 def decide_redirect(req, message):
     if req.form.get('no_redirect'):
@@ -26,6 +31,19 @@ def decide_redirect(req, message):
         return redirect(destination)
     else:
         return app.send_static_file('back.html')
+
+
+def get_cache_bust():
+    time_diff = datetime.datetime.now() - datetime.datetime(1, 1, 1)
+    return int(time_diff.total_seconds())
+
+
+def get_complete_form_data(r):
+    return {
+        key: value[0] if len(value) == 1 else value
+        for key, value in r.form.iterlists()
+        if key not in ['no_redirect', 'next']
+    }
 
 
 @app.before_request
@@ -39,6 +57,11 @@ def after_request(response):
     return response
 
 
+###########################
+#   WEB VIEW
+###########################
+
+
 @app.route('/')
 def root():
     return redirect('/health')
@@ -49,6 +72,8 @@ def health():
     data = {
         "comment_keys": Comment.select(Comment.key).distinct().count(),
         "comments": Comment.select().count(),
+        "note_keys": Note.select(Note.key).distinct().count(),
+        "notes": Note.select().count(),
         "payloads": Payload.select().count(),
     }
     return json.dumps(data)
@@ -57,6 +82,11 @@ def health():
 @app.route('/comments')
 def input_comments():
     return app.send_static_file('comments.html')
+
+
+@app.route('/notes')
+def input_notes():
+    return app.send_static_file('notes.html')
 
 
 @app.route('/payload')
@@ -69,6 +99,11 @@ def input_echo():
     return app.send_static_file('echo_test.html')
 
 
+###########################
+#   STATIC FILES
+###########################
+
+
 @app.route('/static/echo.js')
 def static_echo_js():
     return app.send_static_file('echo.js')
@@ -79,7 +114,12 @@ def static_echo_css():
     return app.send_static_file('echo.css')
 
 
-@app.route('/<domain>/keys')
+###########################
+#   COMMENTS
+###########################
+
+
+@app.route('/comments/<domain>/keys')
 def get_comment_keys(domain):
     comments = (
         Comment
@@ -91,7 +131,7 @@ def get_comment_keys(domain):
 
 
 @app.route('/comments/<domain>/<key>')
-def get_comment_by_key(domain, key):
+def get_comments_by_key(domain, key):
     comments = (
         Comment
         .select()
@@ -120,6 +160,56 @@ def delete_comment(domain, key, id):
     return decide_redirect(request, json.dumps(comment.to_dict()))
 
 
+###########################
+#   NOTES
+###########################
+
+
+@app.route('/notes/<domain>/keys')
+def get_note_keys(domain):
+    notes = (
+        Note
+        .select(Note.key)
+        .where(Note.domain == domain)
+        .distinct()
+    )
+    return json.dumps([c.key for c in notes])
+
+
+@app.route('/notes/<domain>/<key>')
+def get_notes_by_key(domain, key):
+    notes = (
+        Note
+        .select()
+        .where(Note.domain == domain and Note.key == key)
+        .order_by(Note.created_at.desc())
+    )
+    return json.dumps([c.to_dict() for c in notes])
+
+
+@app.route('/notes/<domain>/<key>', methods=['POST'])
+def create_note_by_key(domain, key):
+    note = Note.create(
+        domain=domain,
+        key=key,
+        data=json.dumps(get_complete_form_data(request)),
+    )
+    return decide_redirect(request, json.dumps(note.to_dict()))
+
+
+@app.route('/delete/note/<domain>/<key>/<id>')  # GET for easy teaching
+def delete_note(domain, key, id):
+    note = Note.get(Note.id == id)
+    if note.domain == domain and note.key == key:
+        note.delete_instance()
+    return decide_redirect(request, json.dumps(note.to_dict()))
+
+
+###########################
+#   PAYLOAD
+###########################
+
+
 @app.route('/payload/<key>')
 def get_payload_by_key(key):
     try:
@@ -140,6 +230,11 @@ def post_payload():
     return decide_redirect(request, json.dumps(payload.to_dict()))
 
 
+###########################
+#   ECHO
+###########################
+
+
 echo_html = """
 <html>
 <head>
@@ -156,23 +251,20 @@ echo_html = """
 """
 
 
-def get_cache_bust():
-    time_diff = datetime.datetime.now() - datetime.datetime(1, 1, 1)
-    return int(time_diff.total_seconds())
-
-
 @app.route('/echo', methods=['POST'])
 def post_echo():
-    data = {
-        key: value[0] if len(value) == 1 else value
-        for key, value in request.form.iterlists()
-    }
+    data = get_complete_form_data(request)
     cache_bust = get_cache_bust()
     return echo_html % (
         json.dumps(data),
         cache_bust,
         cache_bust,
     )
+
+
+###########################
+#   MAIN
+###########################
 
 
 if __name__ == '__main__':

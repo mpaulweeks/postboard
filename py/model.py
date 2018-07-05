@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 
 from peewee import (
@@ -33,6 +34,23 @@ class Comment(BaseModel):
             'key': self.key,
             'name': self.name,
             'text': self.text,
+            'created_at': self.created_at.isoformat(),
+        }
+
+
+class Note(BaseModel):
+    id = PrimaryKeyField()
+    domain = CharField()
+    key = CharField()
+    data = CharField()
+    created_at = DateTimeField(default=datetime.datetime.now)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'domain': self.domain,
+            'key': self.key,
+            'data': json.loads(self.data),
             'created_at': self.created_at.isoformat(),
         }
 
