@@ -1,9 +1,9 @@
 import datetime
-import json
 import os
 
 from flask import (
     Flask,
+    jsonify,
     redirect,
     request,
 )
@@ -76,7 +76,7 @@ def health():
         "notes": Note.select().count(),
         "payloads": Payload.select().count(),
     }
-    return json.dumps(data)
+    return jsonify(data)
 
 
 @app.route('/comments')
@@ -127,7 +127,7 @@ def get_comment_keys(domain):
         .where(Comment.domain == domain)
         .distinct()
     )
-    return json.dumps([c.key for c in comments])
+    return jsonify([c.key for c in comments])
 
 
 @app.route('/comments/<domain>/<key>')
@@ -138,7 +138,7 @@ def get_comments_by_key(domain, key):
         .where(Comment.domain == domain and Comment.key == key)
         .order_by(Comment.created_at.desc())
     )
-    return json.dumps([c.to_dict() for c in comments])
+    return jsonify([c.to_dict() for c in comments])
 
 
 @app.route('/comments/<domain>/<key>', methods=['POST'])
@@ -149,7 +149,7 @@ def create_comment_by_key(domain, key):
         name=request.form['name'],
         text=request.form['text'],
     )
-    return decide_redirect(request, json.dumps(comment.to_dict()))
+    return decide_redirect(request, jsonify(comment.to_dict()))
 
 
 @app.route('/delete/comment/<domain>/<key>/<id>')  # GET for easy teaching
@@ -157,7 +157,7 @@ def delete_comment(domain, key, id):
     comment = Comment.get(Comment.id == id)
     if comment.domain == domain and comment.key == key:
         comment.delete_instance()
-    return decide_redirect(request, json.dumps(comment.to_dict()))
+    return decide_redirect(request, jsonify(comment.to_dict()))
 
 
 ###########################
@@ -173,7 +173,7 @@ def get_note_keys(domain):
         .where(Note.domain == domain)
         .distinct()
     )
-    return json.dumps([c.key for c in notes])
+    return jsonify([c.key for c in notes])
 
 
 @app.route('/notes/<domain>/<key>')
@@ -184,7 +184,7 @@ def get_notes_by_key(domain, key):
         .where(Note.domain == domain and Note.key == key)
         .order_by(Note.created_at.desc())
     )
-    return json.dumps([c.to_dict() for c in notes])
+    return jsonify([c.to_dict() for c in notes])
 
 
 @app.route('/notes/<domain>/<key>', methods=['POST'])
@@ -192,9 +192,9 @@ def create_note_by_key(domain, key):
     note = Note.create(
         domain=domain,
         key=key,
-        data=json.dumps(get_complete_form_data(request)),
+        data=jsonify(get_complete_form_data(request)),
     )
-    return decide_redirect(request, json.dumps(note.to_dict()))
+    return decide_redirect(request, jsonify(note.to_dict()))
 
 
 @app.route('/delete/note/<domain>/<key>/<id>')  # GET for easy teaching
@@ -202,7 +202,7 @@ def delete_note(domain, key, id):
     note = Note.get(Note.id == id)
     if note.domain == domain and note.key == key:
         note.delete_instance()
-    return decide_redirect(request, json.dumps(note.to_dict()))
+    return decide_redirect(request, jsonify(note.to_dict()))
 
 
 ###########################
@@ -227,7 +227,7 @@ def post_payload():
     payload.blob = request.form['blob']
     payload.created_at = datetime.datetime.now()
     payload.save()
-    return decide_redirect(request, json.dumps(payload.to_dict()))
+    return decide_redirect(request, jsonify(payload.to_dict()))
 
 
 ###########################
@@ -256,7 +256,7 @@ def post_echo():
     data = get_complete_form_data(request)
     cache_bust = get_cache_bust()
     return echo_html % (
-        json.dumps(data),
+        jsonify(data),
         cache_bust,
         cache_bust,
     )
