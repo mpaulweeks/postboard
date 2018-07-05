@@ -47,11 +47,12 @@ class Note(BaseModel):
     created_at = DateTimeField(default=datetime.datetime.now)
 
     def to_dict(self):
-        delete_url = "%s/delete/note/%s/%s/%s" % (
+        delete_url = "%s/delete/note/%s/%s/%s?cache=%s" % (
             BASE_URL,
             self.domain,
             self.key,
             self.id,
+            self.created_at.isoformat(),
         )
         return {
             'id': self.id,
