@@ -12,6 +12,7 @@ from peewee import (
 )
 
 sqlite_db = SqliteDatabase(os.environ['POSTBOARD_DB'])
+BASE_URL = "https://postboard.mpaulweeks.com"
 
 
 class BaseModel(Model):
@@ -46,12 +47,19 @@ class Note(BaseModel):
     created_at = DateTimeField(default=datetime.datetime.now)
 
     def to_dict(self):
+        delete_url = "%s/delete/note/%s/%s/%s" % (
+            BASE_URL,
+            self.domain,
+            self.key,
+            self.id,
+        )
         return {
             'id': self.id,
             'domain': self.domain,
             'key': self.key,
             'data': json.loads(self.data),
             'created_at': self.created_at.isoformat(),
+            'delete_url': delete_url,
         }
 
 
