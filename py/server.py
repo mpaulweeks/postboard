@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 
 from flask import (
@@ -192,7 +193,7 @@ def create_note_by_key(domain, key):
     note = Note.create(
         domain=domain,
         key=key,
-        data=jsonify(get_complete_form_data(request)),
+        data=json.dumps(get_complete_form_data(request)),
     )
     return decide_redirect(request, jsonify(note.to_dict()))
 
@@ -256,7 +257,7 @@ def post_echo():
     data = get_complete_form_data(request)
     cache_bust = get_cache_bust()
     return echo_html % (
-        jsonify(data),
+        json.dumps(data),
         cache_bust,
         cache_bust,
     )
