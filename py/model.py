@@ -15,6 +15,11 @@ sqlite_db = SqliteDatabase(os.environ['POSTBOARD_DB'])
 BASE_URL = "https://postboard.mpaulweeks.com"
 
 
+def gen_nonce():
+    time_diff = datetime.datetime.now() - datetime.datetime(1, 1, 1)
+    return int(time_diff.total_seconds())
+
+
 class BaseModel(Model):
     class Meta:
         database = sqlite_db
@@ -52,7 +57,7 @@ class Note(BaseModel):
             self.domain,
             self.key,
             self.id,
-            self.created_at.isoformat(),
+            gen_nonce(),
         )
         return {
             'id': self.id,

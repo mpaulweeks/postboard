@@ -11,6 +11,7 @@ from flask import (
 
 from .model import (
     sqlite_db,
+    gen_nonce,
     Comment,
     Note,
     Payload,
@@ -32,11 +33,6 @@ def decide_redirect(req, message):
         return redirect(destination)
     else:
         return app.send_static_file('back.html')
-
-
-def get_cache_bust():
-    time_diff = datetime.datetime.now() - datetime.datetime(1, 1, 1)
-    return int(time_diff.total_seconds())
 
 
 def get_complete_form_data(r):
@@ -255,7 +251,7 @@ echo_html = """
 @app.route('/echo', methods=['POST'])
 def post_echo():
     data = get_complete_form_data(request)
-    cache_bust = get_cache_bust()
+    cache_bust = gen_nonce()
     return echo_html % (
         json.dumps(data),
         cache_bust,
